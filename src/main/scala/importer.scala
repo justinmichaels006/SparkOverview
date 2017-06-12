@@ -158,7 +158,7 @@ object Main {
       }
     iiFirstPass1.take(50).foreach(println)
 
-    /*val jFile = sConf.read.json("/Users/justin/Documents/Demo/data/stocks.json")
+    /*val jFile = sConf.read.json("data/stockinfo/stocks.json")
     jFile.createTempView("thestocks")
     jFile.printSchema()
     jFile.write.couchbase(Map("idField" -> "Ticker"))*/
