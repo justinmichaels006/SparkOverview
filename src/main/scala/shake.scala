@@ -1,13 +1,14 @@
+package justin
+
 import java.io.{BufferedInputStream, BufferedOutputStream, File, FileOutputStream}
 import java.net.URL
 import org.apache.spark.sql.SparkSession
 
-class shake (sConf: SparkSession) {
+//class shake (sConf: SparkSession) {
+object shake {
+  def main(sConf:SparkSession) = {
 
- /*
- * "info" takes a single String argument, prints it on a line,
- * and returns it.
- */
+  /* "info" takes a single String argument, prints it on a line, and returns it.*/
   def info(message: String): String = {
     println(message)
     message  // No additional formatting
@@ -60,11 +61,11 @@ class shake (sConf: SparkSession) {
     outFile                                     // Returned file (if we got this far)
   }
 
-  val shakespeare = new File("data/shakespeare")
+  val shakespeare = new File("/tmp/shakespeare/")
 
   val success = if (shakespeare.exists == false) {   // doesn't exist already? In Java, I would need parentheses: .exists()
     if (shakespeare.mkdirs() == false) {           // did the attempt fail??
-      error(s"Failed to create directory path: $shakespeare")  // ignore returned string
+      sys.error(s"Failed to create directory path: $shakespeare")  // ignore returned string
       false
     } else {                                       // successful
       info(s"Created $shakespeare")
@@ -78,10 +79,12 @@ class shake (sConf: SparkSession) {
 
   val pathSeparator = File.separator
   val targetDirName = shakespeare.toString
-  val urlRoot = "http://www.cs.usyd.edu.au/~matty/Shakespeare/texts/comedies/"
+  val urlRoot = "https://ocw.mit.edu/ans7870/6/6.006/s08/lecturenotes/files/"
   val plays = Seq(
-    "tamingoftheshrew", "comedyoferrors", "loveslabourslost", "midsummersnightsdream",
-    "merrywivesofwindsor", "muchadoaboutnothing", "asyoulikeit", "twelfthnight")
+    //"tamingoftheshrew", "comedyoferrors", "loveslabourslost", "midsummersnightsdream",
+    //"merrywivesofwindsor", "muchadoaboutnothing", "asyoulikeit", "twelfthnight",
+    "t8.shakespeare.txt"
+  )
 
   if (success) {
     println(s"Downloading plays from $urlRoot.")
@@ -109,6 +112,7 @@ class shake (sConf: SparkSession) {
   println("(Note that the type of the argument `str` is inferred to be String.)")
   plays.foreach(str => println(str))
 
+  //val iiFirstPass1 = sConf.sparkContext.wholeTextFiles(shakespeare.toString).
   val iiFirstPass1 = sConf.sparkContext.wholeTextFiles(shakespeare.toString).
     flatMap { location_contents_tuple2 =>
       val words = location_contents_tuple2._2.split("""\W+""")
@@ -129,4 +133,5 @@ class shake (sConf: SparkSession) {
     }
   iiFirstPass1.take(50).foreach(println)
 
+}
 }
