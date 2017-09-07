@@ -21,7 +21,6 @@ object Main {
       //.config("spark.sql.warehouse.dir", warehouseLocation)
       //.enableHiveSupport()
       .getOrCreate()
-      //.sparkContext.addFile("/tmp/stocks.json")
 
     /*val conf = new SparkConf()
       //.setMaster("local[*]")
@@ -42,7 +41,7 @@ object Main {
     jFile.printSchema()
     jFile.write.couchbase(Map{"idField" -> "Ticker"})
 
-    shake.main(SS)
+    //shake.main(SS)
     println("DEBUG:")
 
   }
