@@ -4,7 +4,6 @@ import java.io.{BufferedInputStream, BufferedOutputStream, File, FileOutputStrea
 import java.net.URL
 import org.apache.spark.sql.SparkSession
 
-//class shake (sConf: SparkSession) {
 object shake {
   def main(sConf:SparkSession) = {
 
@@ -85,6 +84,7 @@ object shake {
     //"merrywivesofwindsor", "muchadoaboutnothing", "asyoulikeit", "twelfthnight",
     "t8.shakespeare.txt"
   )
+  val thefile = "t8.shakespeare.txt"
 
   if (success) {
     println(s"Downloading plays from $urlRoot.")
@@ -113,7 +113,7 @@ object shake {
   plays.foreach(str => println(str))
 
   //val iiFirstPass1 = sConf.sparkContext.wholeTextFiles(shakespeare.toString).
-  val iiFirstPass1 = sConf.sparkContext.wholeTextFiles(shakespeare.toString).
+  val iiFirstPass1 = sConf.sparkContext.wholeTextFiles(targetDirName.toString + pathSeparator + thefile).
     flatMap { location_contents_tuple2 =>
       val words = location_contents_tuple2._2.split("""\W+""")
       val fileName = location_contents_tuple2._1.split(pathSeparator).last
