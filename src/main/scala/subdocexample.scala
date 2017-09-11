@@ -1,3 +1,5 @@
+package justin
+
 import com.couchbase.client.java.document.JsonDocument
 import org.apache.spark.sql.SparkSession
 import com.couchbase.spark._
@@ -5,7 +7,7 @@ import com.couchbase.spark._
 /**
   * Created by justin on 9/7/17.
   */
-object quickstart {
+object subdoc {
   def main(sSess:SparkSession) = {
 
     val sc = sSess.sparkContext
