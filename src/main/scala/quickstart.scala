@@ -1,3 +1,5 @@
+package justin
+
 import com.couchbase.client.java.document.JsonDocument
 import com.couchbase.client.java.document.json.JsonObject
 import com.couchbase.spark._
@@ -9,7 +11,6 @@ import org.apache.spark.sql.sources.EqualTo
   * Created by justin on 9/7/17.
   */
 object quickstart {
-
   def main(sSess:SparkSession) = {
 
     //Create RDD by reading from Couchbase
