@@ -15,19 +15,12 @@ object Main {
       //.master("spark://192.168.61.1:7077")
       .config("spark.couchbase.nodes", "192.168.61.101") // connect to couchbase
       .config("spark.couchbase.nodes", "192.168.61.102")
-      //.config("spark.couchbase.bucket.travel-sample", "password") // open the bucket with password
-      .config("spark.couchbase.bucket.testload", "password") // open the bucket with password
+      .config("spark.couchbase.bucket.travel-sample", "password") // open the bucket with password
+      //.config("spark.couchbase.bucket.testload", "password") // open the bucket with password
       //.config("spark.sql.warehouse.dir", "/vagrant/")
       //.config("spark.sql.warehouse.dir", warehouseLocation)
       //.enableHiveSupport()
       .getOrCreate()
-
-    /*val conf = new SparkConf()
-      //.setMaster("local[*]")
-      .setMaster("spark://192.168.61.1:7077")
-      .setAppName("StreamingExample")
-      .set("com.couchbase.bucket.travel-sample", "")
-    val ssc = new StreamingContext(conf, Seconds(5))*/
 
     println("DEBUG:", SS.version)
     //val tFile = "/tmp/stocks.json"
@@ -38,9 +31,9 @@ object Main {
     // jFile.write.couchbase(Map{"idField" -> "Ticker"})
 
     //shake.main(SS)
-    //quickstart.main(SS)
+    quickstart.main(SS)
     //subdoc.main(SS)
-    DeviceLookup.main(SS)
+    //DeviceLookup.main(SS)
     println("DEBUG: complete")
     SS.close()
   }
