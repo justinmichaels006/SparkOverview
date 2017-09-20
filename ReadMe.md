@@ -7,7 +7,7 @@ Prerequisites: Spark, sbt, and scala installed locally
 3. This should create a fat-jar in the target directory.
 4. To execute submit this jar to spark-submit
 "/usr/local/spark-2.1.1-bin-hadoop2.7/bin/spark-submit target/scala-2.11/my-app-assembly-1.0.jar”. 
-Note: As you can see this is assuming you’re running from the root of the project "/Users/justin/Documents/Demo/SparkOverview” otherwise you would need to provide the absolute file path to the jar file.
+Note: As you can see this is assuming you’re running from the root of the project SparkOverview otherwise you would need to provide the absolute file path to the jar file.
 
 Examples Covered:
 
