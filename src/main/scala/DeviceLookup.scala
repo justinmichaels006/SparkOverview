@@ -1,10 +1,8 @@
 package justin
 
-import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
-import com.couchbase.client.java.query.N1qlQuery
-import com.couchbase.spark._
+import com.couchbase.spark.sql._
+import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
-import org.apache.spark.sql.{Row, SparkSession}
 
 //case class DeviceModel(deviceid: String, mobilenumber: String)
 
@@ -12,63 +10,58 @@ object DeviceLookup {
   def main(spark:SparkSession): Unit = {
     val sparkContext = spark.sparkContext
     val sqlContext = spark.sqlContext
+    import sqlContext.implicits._
 
-    //region CB "deviceauxinfo_small" schema
+    //Simple ingest of mobile numbers
+    val tFile = "/tmp/testdeviceids_small.data"
+    val mobileNumbers = spark.read.text(tFile)
+    mobileNumbers.printSchema()
+    mobileNumbers.createOrReplaceTempView("mobilenumbers")
+    mobileNumbers.show()
+
+    //Consider a simple query
+    //... "SELECT deviceid, mobilenumber FROM `testload` WHERE (mobilenumber in [\"1088000019\", \"1088000004\", \"1088000008\", \"1088000005\", \"1088000020\", \"1095195141\"])"
+    var startTime = System.currentTimeMillis()
+
+    //Create a DataFrame from Couchbase and define the schema manually
     val schema = StructType(
       StructField("deviceid", StringType, false)::
         StructField("mobilenumber", StringType, true)::Nil
     )
-    //val cbDataFrame = sqlContext.read.couchbase(schema).as("DeviceModel")
-    //cbDataFrame.printSchema()
-    //cbDataFrame.show(20)
-    //endregion
+    var cbDataFrame = sqlContext.read.couchbase(schema)
+    cbDataFrame.printSchema()
+    cbDataFrame.show(20)
 
-    //region Querying CB "deviceauxinfo_small" via joining the local device id list
-    var listOfMobileNumbers = new java.util.ArrayList[String]()
+    // Create a DataFrame from Couchbase but use SparkQL
+    val df = sqlContext.read.couchbase() // no additional filter needed
+    val cbDataFrame2 = df.select("mobilenumber", "deviceid")
+    // Filer the DataFrame
+    //val numbers = Seq("1088000019", "1088000004", "1088000008", "1088000005", "1088000020", "1095195141")
+    val numbers = Seq(mobileNumbers.toString())
+    val filtered_df = df.where($"mobilenumber".isin(numbers:_*)) // add the where in clause with spark sql
+    filtered_df.show()
 
-    /*val deviceids = sqlContext
+    // Create a DataFrame directly with infered schema
+    val cbDataFrame3 = sqlContext
       .read
-      .textFile("/tmp/testdeviceids_small.data")
-      .as[String]
-      .toDF("mobilenumber")*/
-    val tFile = "/tmp/testdeviceids_small.data"
-    val deviceids = spark.read.format("json").load(tFile)
-    deviceids.printSchema()
-    deviceids.createOrReplaceTempView("deviceids")
-    deviceids.show()
-
-    //cbDataFrame
-    //  .join(deviceids, Seq("mobilenumber"), "inner")
-    //  .select(cbDataFrame.col("deviceid"), cbDataFrame.col("mobilenumber"))
-    //  .show()
-    //endregion
-
-    //region CB querying with named parameter
-    val query_string =
-      "SELECT deviceid, mobilenumber FROM `testload` WHERE (mobilenumber in [\"1088000019\", \"1088000004\", \"1088000008\", \"1088000005\", \"1088000020\", \"1095195141\"])"
-
-    var startTime = System.currentTimeMillis()
-      //for (i <- 1088000001 to 1088100000) yield listOfMobileNumbers.add(i.toString)
+      .format("com.couchbase.spark.sql")
+      .load()
+      .select("mobilenumber", "deviceid")
+    cbDataFrame3.show(10)
+    
     var elapsed = (System.currentTimeMillis() - startTime).toInt
-      println("Elapsed time %1d ms".format(elapsed))
+    println("Elapsed time %1d ms".format(elapsed))
 
-    val identifiers = JsonObject.create()
-      .put("mobilenumber_list", JsonArray.from(deviceids.toString()))
+    //TODO Partioning Queries
 
-    //val cbStatement = N1qlQuery.parameterized(query_string, identifiers)
-    val cbStatement = N1qlQuery.simple(query_string)
-      startTime = System.currentTimeMillis()
-    val cbQueryRDD = sparkContext
-      .couchbaseQuery(cbStatement)
-      .map(
-      r => Row(r.value.getString("deviceid"), r.value.getString("mobilenumber"))
-      )
+    //TODO Prtitioning k/v access
 
-    cbQueryRDD.foreach(println)
-    val totRecords = cbQueryRDD.count()
+    //TODO spark streaming
+
+    // Profile the processing time
+    val totRecords = filtered_df.count()
       elapsed = (System.currentTimeMillis() - startTime).toInt
       println(f"Total devices retrieved: $totRecords%d")
       println("Time to execute query: %1d ms".format(elapsed))
-    //endregion
   }
 }
