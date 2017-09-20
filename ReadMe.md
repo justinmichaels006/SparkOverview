@@ -1,6 +1,6 @@
 
 
-Prerequisites: Spark, sbt, and scala installed locally
+Prerequisites: Spark, sbt, and scala installed locally. Couchbase Day two-node cluster.
 
 1. Clone https://github.com/justinmichaels006/SparkOverview.git
 2. From the root of that cloned directory you should be able to execute “sbt assembly”.
